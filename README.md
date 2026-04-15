@@ -60,4 +60,5 @@ Sensitive data such as bot tokens and API keys are stored using environment vari
 ## 📌 Author
 
 Adam Brandon CS @ NIU 
+
 https://www.linkedin.com/in/adam-brandon-9bb8011ab/
