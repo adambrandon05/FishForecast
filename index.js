@@ -10,11 +10,6 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages]
 }); 
 
-// event listener for when the bot is ready and logged in
-client.once('Events.ClientReady', (readyClient) => { 
-    console.log(`Logged in as ${readyClient.user.tag}`); 
-});
-
 client.commands = new Collection(); // collection to store commands
 
 const folderPath = path.join(__dirname, 'commands'); // path to the commands folder
@@ -34,33 +29,20 @@ for (const folder of commandFolder) {
         }
     }
 }
-// event listener for when a slash command is used
-client.on(Events.InteractionCreate, async (interaction) => { 
-    if (!interaction.isChatInputCommand()) return; // only handle slash commands
-    const command = interaction.client.commands.get(interaction.commandName); // get the command from the collection
-    if (!command) { 
-        console.error(`No command matching ${interaction.commandName} was found.`);
-        return;
-    }
 
-    try { 
-        await command.execute(interaction); 
-    } catch (error) { 
-        console.error(`Error executing ${interaction.commandName}`);
-        if(interaction.replied || interaction.deferred) {
-            await interaction.followUp({ 
-                content: 'There was an error while executing this command!', 
-                flags: MessageFlags.Ephemeral,
-            });
-        } else {
-            await interaction.reply({ 
-                content: 'There was an error while executing this command!', 
-                flags: MessageFlags.Ephemeral,
-            });
-        }
+const eventsPath = path.join(__dirname, 'events'); 
+const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.endsWith('.js')); 
+
+for (const file of eventFiles) { 
+    const filePath = path.join(eventsPath, file); 
+    const event = require(filePath); 
+    if (event.once) { 
+        client.once(event.name, (...args) => event.execute(...args)); 
+    } else { 
+        client.on(event.name, (...args) => event.execute(...args)); 
     }
-    console.log(`Received command: ${interaction.commandName}`); // log the command name for debugging
-});
+}
+
 client.login(token); // logs in the bot using the token from the .env file
 
 
