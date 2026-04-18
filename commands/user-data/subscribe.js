@@ -2,8 +2,8 @@ const {
     SlashCommandBuilder, LabelBuilder, ModalBuilder, TextInputBuilder, 
     TextInputStyle, StringSelectMenuOptionBuilder, MessageFlags, StringSelectMenuBuilder,
     TextDisplayBuilder } = require('discord.js');
-const { createUser, users } = require('../../utilities/users');
 
+const { createUser, users } = require('../../utilities/users');
 
 module.exports = {
     data: new SlashCommandBuilder().
@@ -21,7 +21,7 @@ module.exports = {
         if(users[userId].subscribed) {
             await interaction.reply({ 
                 content: "You are already subscribed. Use /updatepreferences instead.", 
-                flags: MessageFlags.Ephemeral,
+                flags: MessageFlags.Ephemeral
             });
             return;
         }
