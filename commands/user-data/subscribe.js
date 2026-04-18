@@ -92,7 +92,7 @@ module.exports = {
             // possible change to make it noted to pick your most fished species
         const speciesInput = new StringSelectMenuBuilder() 
             .setCustomId('species')
-            .setPlaceholder(`Let's catch some fish!!`)
+            .setPlaceholder(`Only select one. Pick the one you fish for the most.`)
             .setRequired(true)
             .addOptions( 
                 // Select Box Options
