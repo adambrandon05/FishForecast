@@ -14,7 +14,7 @@ module.exports = {
         try { 
             await command.execute(interaction); 
         } catch (error) { 
-            console.error(`Error executing ${interaction.commandName}`);
+            console.error(`Error executing ${interaction.commandName}`, error);
             if(interaction.replied || interaction.deferred) {
                 await interaction.followUp({ 
                     content: 'There was an error while executing this command!', 

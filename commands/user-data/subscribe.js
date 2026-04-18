@@ -1,0 +1,135 @@
+const { 
+    SlashCommandBuilder, LabelBuilder, ModalBuilder, TextInputBuilder, 
+    TextInputStyle, StringSelectMenuOptionBuilder, MessageFlags, StringSelectMenuBuilder,
+    TextDisplayBuilder } = require('discord.js');
+const users = {}; 
+/* 
+u
+const users = {
+  [userId]: {
+    subscribed: true/false,
+    preferences: {
+      location: "...",
+      species: "...",
+      sendTime: "..."
+    } // or null if not set yet
+  }
+};
+*/
+module.exports = {
+    data: new SlashCommandBuilder().
+        setName('subscribe').
+        setDescription('Lets user receive a daily fishing report'),
+    
+    async execute(interaction) {
+        const userId = interaction.user.id; 
+
+        // new user interface for storing these values is yet to be created 
+        if(!users[userId]) { 
+            users[userId] = { 
+                subscribed: false, 
+                preferences: null
+            };
+        }
+        // already subscribed 
+        if(users[userId].subscribed) {
+            await interaction.reply({ 
+                content: "You are already subscribed. Use /updatepreferences instead.", 
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
+        // former subscriber preferences already set
+        if(users[userId].preferences) { 
+            await interaction.reply({ 
+                content: "You are now reactivated use /updatepreferences if you want to update preferences. ", 
+                flags: MessageFlags.Ephemeral,
+            }); 
+            
+            // will most likely change user has not been built
+            users[userId] = { 
+                subscribed: true, 
+                preferences: users[userId].preferences
+            };
+            return;
+        }
+        // modal creation 
+
+        const modal = new ModalBuilder()
+            .setCustomId('preferences')
+            .setTitle('Set Your Preferences');
+
+        const text = new TextDisplayBuilder()
+            .setContent('Please enter your preferences below. These preferences will be used to generate the most accurate report.');
+
+        const zipcodeInput = new TextInputBuilder()
+            .setCustomId('zipcodeInput')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Zipcode Ex. 61376')
+            // ensures accurate user input
+            .setMaxLength(5)
+            .setMinLength(5)
+            .setRequired(true);
+
+        const locationNameInput = new TextInputBuilder() 
+            .setCustomId('locationNameInput')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder(` Ex. Happy Hooker's Fishing Pond`)
+            // set default if user does not have a name for their fishing hole
+            .setValue(`${interaction.user.username}'s pond`)
+            .setMaxLength(100);
+
+        const zipcodeLabel= new LabelBuilder() 
+            .setLabel('What is your zipcode?')
+            .setDescription('This will be used to determine the weather and fishing conditions in your area.')
+            .setTextInputComponent(zipcodeInput);
+
+        const locationNameLabel = new LabelBuilder() 
+            .setLabel('What do you want to name your fishing hole?')
+            .setDescription('If you do not have a name for your fishing hole, it will default to your username\'s pond.')
+            .setTextInputComponent(locationNameInput);
+
+            // possible change to make it noted to pick your most fished species
+        const speciesInput = new StringSelectMenuBuilder() 
+            .setCustomId('species')
+            .setPlaceholder(`Let's catch some fish!!`)
+            .setRequired(true)
+            .addOptions( 
+                // Select Box Options
+                new StringSelectMenuOptionBuilder() 
+                    .setLabel('Largemouth Bass')
+                    .setValue('lBass'), // l for large don't forget
+                
+                new StringSelectMenuOptionBuilder() 
+                    .setLabel('Smallmouth Bass')
+                    .setValue('sBass'), // s for small don't forget
+
+                new StringSelectMenuOptionBuilder() 
+                    .setLabel('Crappie')
+                    .setValue('crappie'),
+                
+                new StringSelectMenuOptionBuilder() 
+                    .setLabel('Bluegill')
+                    .setValue('bluegill'),
+                
+                new StringSelectMenuOptionBuilder() 
+                    .setLabel('Catfish')
+                    .setValue('catfish'),
+            );
+
+            const speciesLabel = new LabelBuilder() 
+                .setLabel("What fish species do you fish for the most")
+                .setStringSelectMenuComponent(speciesInput);
+
+            modal 
+                .addTextDisplayComponents(text)
+                .addLabelComponents(zipcodeLabel)
+                .addLabelComponents(locationNameLabel)
+                .addLabelComponents(speciesLabel);
+
+            await interaction.showModal(modal);
+        
+        
+    },
+
+};
