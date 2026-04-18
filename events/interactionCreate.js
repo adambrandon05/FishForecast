@@ -1,4 +1,5 @@
 const { Events, MessageFlags } = require('discord.js'); 
+const { users } = require('../utilities/users');
 
 module.exports = { 
     name: Events.InteractionCreate, 
@@ -34,8 +35,19 @@ module.exports = {
                 // long term data storage will be added later 
                 const zipcode = interaction.fields.getTextInputValue('zipcodeInput'); 
                 const location = interaction.fields.getTextInputValue('locationNameInput');
-                const species = interaction.fields.getStringSelectValues('species');
-
+                const speciesValues = interaction.fields.getStringSelectValues('species');
+                const species = speciesValues[0];
+                // update user data 
+                users[interaction.user.id] = { 
+                    subscribed: true, 
+                    setupComplete: true,
+                    preferences: {
+                        zipcode : zipcode,
+                        locationName: location,
+                        species: species,
+                        sendTime: null
+                    },
+                };
                 console.log(zipcode, location, species); 
 
                 await interaction.reply({

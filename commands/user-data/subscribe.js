@@ -2,20 +2,9 @@ const {
     SlashCommandBuilder, LabelBuilder, ModalBuilder, TextInputBuilder, 
     TextInputStyle, StringSelectMenuOptionBuilder, MessageFlags, StringSelectMenuBuilder,
     TextDisplayBuilder } = require('discord.js');
-const users = {}; 
-/* 
-u
-const users = {
-  [userId]: {
-    subscribed: true/false,
-    preferences: {
-      location: "...",
-      species: "...",
-      sendTime: "..."
-    } // or null if not set yet
-  }
-};
-*/
+const { createUser, users } = require('../../utilities/users');
+
+
 module.exports = {
     data: new SlashCommandBuilder().
         setName('subscribe').
@@ -26,10 +15,7 @@ module.exports = {
 
         // new user interface for storing these values is yet to be created 
         if(!users[userId]) { 
-            users[userId] = { 
-                subscribed: false, 
-                preferences: null
-            };
+            users[userId] = createUser();
         }
         // already subscribed 
         if(users[userId].subscribed) {
@@ -40,16 +26,17 @@ module.exports = {
             return;
         }
         // former subscriber preferences already set
-        if(users[userId].preferences) { 
+        if(users[userId].setupComplete) { 
             await interaction.reply({ 
                 content: "You are now reactivated use /updatepreferences if you want to update preferences. ", 
                 flags: MessageFlags.Ephemeral,
             }); 
             
-            // will most likely change user has not been built
+            // will most likely change once I add a DB
             users[userId] = { 
                 subscribed: true, 
-                preferences: users[userId].preferences
+                setupComplete: users[userId].setupComplete,
+                preferences: users[userId].preferences,
             };
             return;
         }
@@ -98,23 +85,23 @@ module.exports = {
                 // Select Box Options
                 new StringSelectMenuOptionBuilder() 
                     .setLabel('Largemouth Bass')
-                    .setValue('lBass'), // l for large don't forget
+                    .setValue('Largemouth Bass'), 
                 
                 new StringSelectMenuOptionBuilder() 
                     .setLabel('Smallmouth Bass')
-                    .setValue('sBass'), // s for small don't forget
+                    .setValue('Smallmouth Bass'), 
 
                 new StringSelectMenuOptionBuilder() 
                     .setLabel('Crappie')
-                    .setValue('crappie'),
+                    .setValue('Crappie'),
                 
                 new StringSelectMenuOptionBuilder() 
                     .setLabel('Bluegill')
-                    .setValue('bluegill'),
+                    .setValue('Bluegill'),
                 
                 new StringSelectMenuOptionBuilder() 
                     .setLabel('Catfish')
-                    .setValue('catfish'),
+                    .setValue('Catfish'),
             );
 
             const speciesLabel = new LabelBuilder() 
@@ -128,8 +115,6 @@ module.exports = {
                 .addLabelComponents(speciesLabel);
 
             await interaction.showModal(modal);
-        
-        
     },
 
 };
