@@ -1,5 +1,6 @@
 
 require('dotenv').config(); // includes .env data 
+const pool = require('./database/db'); // test database connection
 const fs = require('fs'); // file system module for reading command files
 const path = require('path'); // path module for handling file paths
 const { Client, Events, Collection, MessageFlags, GatewayIntentBits,  } = require('discord.js');
@@ -9,6 +10,17 @@ const token = process.env.TOKEN;
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages]
 }); 
+
+// test database connection 
+(async () => { 
+    try { 
+        const connection = await pool.getConnection(); 
+        console.log(`Database successfully connected on port ${process.env.DB_PORT}`);
+        connection.release();
+    } catch (error) { 
+        console.error('Error connecting to the database:',error);
+    }
+})();
 
 client.commands = new Collection(); // collection to store commands
 
