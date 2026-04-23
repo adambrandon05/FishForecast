@@ -1,29 +1,39 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { users } = require('../../utilities/users');
-
+const { getUserByDiscordId } = require('../../database/userQueries');
+const { getPreferencesByDiscordId } = require('../../database/preferenceQueries');
 module.exports = {
     data: new SlashCommandBuilder().
         setName('seepreferences').
         setDescription('Shows formatted list of preferences'),
     async execute(interaction) { 
-        const userId = interaction.user.id;
+        const discordId = interaction.user.id;
         
-        if (!users[userId] || !users[userId].setupComplete) { 
+        const user = await getUserByDiscordId(discordId);
+        if (!user || !user.isSetupComplete) { 
             await interaction.reply({ 
                 content: "You have not set your preference use /subscribe to create preferences.", 
                 flags: MessageFlags.Ephemeral
             });
             return;  
         }   
+        const preferences = await getPreferencesByDiscordId(discordId);
+        if (!preferences) { 
+            await interaction.reply({ 
+                content: "Preferences not found. Please use /subscribe to set your preferences.",
+                flags: MessageFlags.Ephemeral
+            });
+            return;
+        }
         await interaction.reply({
             content:
                 `🎣 **Your Preferences**
 
-                • Subscribed: ${users[userId].subscribed}
-                • Zipcode: ${users[userId].preferences.zipcode}
-                • Location: ${users[userId].preferences.locationName}
-                • Species: ${users[userId].preferences.species}
-                • Time: ${users[userId].preferences.sendTime ?? 'Not set'}
+                • Subscribed: ${user.isSubscribed}
+                • Zipcode: ${preferences.zipcode}
+                • Location: ${preferences.location}
+                • Species: ${preferences.species}
+                • Time: ${preferences.sendTime}
+                • Timezone: ${preferences.timeZone}
                 `,
                     flags: MessageFlags.Ephemeral,
                 });   

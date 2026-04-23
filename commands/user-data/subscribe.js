@@ -3,22 +3,24 @@ const {
     TextInputStyle, StringSelectMenuOptionBuilder, MessageFlags, StringSelectMenuBuilder,
     TextDisplayBuilder } = require('discord.js');
 
-const { createUser, users } = require('../../utilities/users');
+const { getUserByDiscordId, createUser, subscribeUser } = require('../../database/userQueries');
 
 module.exports = {
     data: new SlashCommandBuilder().
         setName('subscribe').
-        setDescription('Lets user receive a daily fishing report'),
+        setDescription('Lets you receive a daily fishing report'),
     
     async execute(interaction) {
-        const userId = interaction.user.id; 
+        const discordId = interaction.user.id; 
 
-        // new user interface for storing these values is yet to be created 
-        if(!users[userId]) { 
-            users[userId] = createUser();
+        const user = await getUserByDiscordId(discordId);
+        // new user, create them and prompt preferences modal
+        if(!user) { 
+            await createUser(discordId);
+            // continue to modal creation
         }
         // already subscribed 
-        if(users[userId].subscribed) {
+        if(user && user.isSubscribed) {
             await interaction.reply({ 
                 content: "You are already subscribed. Use /updatepreferences instead.", 
                 flags: MessageFlags.Ephemeral
@@ -26,18 +28,12 @@ module.exports = {
             return;
         }
         // former subscriber preferences already set
-        if(users[userId].setupComplete) { 
+        if(user && user.isSetupComplete) { 
+            await subscribeUser(discordId);
             await interaction.reply({ 
-                content: "You are now reactivated use /updatepreferences if you want to update preferences. ", 
+                content: "You are now reactivated. Use /updatepreferences if you want to update preferences. ", 
                 flags: MessageFlags.Ephemeral,
             }); 
-            
-            // will most likely change once I add a DB
-            users[userId] = { 
-                subscribed: true, 
-                setupComplete: users[userId].setupComplete,
-                preferences: users[userId].preferences,
-            };
             return;
         }
         // modal creation 

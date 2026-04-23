@@ -1,26 +1,26 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { users } = require('../../utilities/users');
 
+const { getUserByDiscordId, unSubscribeUser } = require('../../database/userQueries')
 module.exports = {
     data: new SlashCommandBuilder().
         setName('unsubscribe').
         setDescription('Unsubscribes user from daily fishing report'),
     async execute(interaction) { 
-        const userId = interaction.user.id; 
+        const discordId = interaction.user.id; 
 
-        if (!users[userId] || !users[userId].subscribed) { 
+        const user = await getUserByDiscordId(discordId);
+        if (!user || !user.isSubscribed) { 
             await interaction.reply({ 
-                content: "You are already not subscribed", 
+                content: "You are not currently subscribed.", 
                 flags: MessageFlags.Ephemeral
             });
             return; 
         }
-        users[userId].subscribed = false;
+        await unSubscribeUser(discordId);
         await interaction.reply({
             content: "You are now no longer subscribed", 
             flags: MessageFlags.Ephemeral
         });
         return;
-        
     }
 };

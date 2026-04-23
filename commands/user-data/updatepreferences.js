@@ -3,25 +3,35 @@ const {
     TextInputStyle, StringSelectMenuOptionBuilder, MessageFlags, StringSelectMenuBuilder,
     TextDisplayBuilder } = require('discord.js');
 
-const { users } = require('../../utilities/users');
+const { getUserByDiscordId } = require('../../database/userQueries');
+const { getPreferencesByDiscordId } = require('../../database/preferenceQueries');
 
 module.exports = {
     data: new SlashCommandBuilder().
         setName('updatepreferences').
         setDescription('Update your preferences for the fishing report.'),
         async execute(interaction) { 
-            const userId = interaction.user.id;
+            const discordId = interaction.user.id;
 
-            if (!users[userId] || !users[userId].setupComplete) { 
+            const user = await getUserByDiscordId(discordId);
+            if (!user || !user.isSetupComplete) { 
                 await interaction.reply({ 
                     content: "You have not set your preference use /subscribe to create preferences.", 
                     flags: MessageFlags.Ephemeral
                 });
                 return; 
             }
-            if (!users[userId].subscribed) { 
+            if (!user.isSubscribed) { 
                 await interaction.reply({ 
                     content: "You are not currently subscribed used /subscribe first, so that these changes work.",
+                    flags: MessageFlags.Ephemeral
+                });
+                return;
+            }
+            const preferences = await getPreferencesByDiscordId(discordId);
+            if (!preferences) { 
+                await interaction.reply({ 
+                    content: "Preferences not found. Please use /subscribe to set your preferences.",
                     flags: MessageFlags.Ephemeral
                 });
                 return;
@@ -30,7 +40,7 @@ module.exports = {
             // mostly the same as subscribe command, but prefilled in values and slight changes to the wording of the questions
             // to make more sense for updating preferences rather than creating them for the first time.
             const modal = new ModalBuilder()
-            .setCustomId('preferences')
+            .setCustomId('updatePreferences')
             .setTitle('Update Your Preferences');
 
             const text = new TextDisplayBuilder()
@@ -40,7 +50,7 @@ module.exports = {
                 .setCustomId('zipcodeInput')
                 .setStyle(TextInputStyle.Short)
                 .setPlaceholder('Zipcode Ex. 61376')
-                .setValue(users[userId].preferences.zipcode) // prefill in the users current zipcode
+                .setValue(preferences.zipcode) // prefill in the users current zipcode
                 // ensures accurate user input
                 .setMaxLength(5)
                 .setMinLength(5)
@@ -51,7 +61,7 @@ module.exports = {
                 .setStyle(TextInputStyle.Short)
                 .setPlaceholder(` Ex. Happy Hooker's Fishing Pond`)
                 // set default if user does not have a name for their fishing hole
-                .setValue(users[userId].preferences.locationName) // prefill in the users current location name`)
+                .setValue(preferences.location) // prefill in the users current location name`)
                 .setMaxLength(100);
 
             const zipcodeLabel= new LabelBuilder() 
@@ -67,7 +77,7 @@ module.exports = {
                 // possible change to make it known to pick your most fished species
             const speciesInput = new StringSelectMenuBuilder() 
                 .setCustomId('species')
-                .setPlaceholder(`Your current selected fish species is ${users[userId].preferences.species}`)
+                .setPlaceholder(`Your current selected fish species is ${preferences.species}`)
                 .setRequired(true)
                 .addOptions( 
                     // Select Box Options

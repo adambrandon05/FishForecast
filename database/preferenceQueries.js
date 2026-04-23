@@ -19,7 +19,7 @@ async function updatePreferences(discordId, zipcode, location, species) {
     return result.affectedRows > 0; // Check if any rows were updated (successfully updated preferences)
 }
 
-async function getUserPreferences(discordId) { 
+async function getPreferencesByDiscordId(discordId) { 
     const [rows] = await pool.query(`SELECT zipcode, location, species, sendTime, timeZone 
         FROM preferences 
         WHERE userId = (SELECT id FROM users WHERE discordId = ?)`, 
@@ -31,5 +31,5 @@ async function getUserPreferences(discordId) {
 module.exports = { 
     insertPreferences, 
     updatePreferences, 
-    getUserPreferences
+    getPreferencesByUserId
 };
