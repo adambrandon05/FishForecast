@@ -11,12 +11,12 @@ CREATE TABLE users (
 
 CREATE TABLE preferences ( 
     id INTEGER AUTO_INCREMENT PRIMARY KEY, 
-    userID INTEGER NOT NULL, 
+    userId INTEGER NOT NULL, 
     zipcode VARCHAR(5) NOT NULL, 
     location VARCHAR(255) NOT NULL,
     species VARCHAR(50) NOT NULL,
     sendTime TIME NOT NULL,
-    timezone VARCHAR(50) NOT NULL,
+    timeZone VARCHAR(50) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
 );
