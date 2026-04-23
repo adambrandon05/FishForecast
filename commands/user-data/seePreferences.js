@@ -28,7 +28,7 @@ module.exports = {
             content:
                 `🎣 **Your Preferences**
 
-                • Subscribed: ${user.isSubscribed}
+                • Subscribed: ${user.isSubscribed ? 'Yes' : 'No'}
                 • Zipcode: ${preferences.zipcode}
                 • Location: ${preferences.location}
                 • Species: ${preferences.species}

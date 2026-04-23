@@ -1,6 +1,6 @@
 const { Events, MessageFlags } = require('discord.js'); 
-const { users } = require('../utilities/users');
-
+const { getUserByDiscordId, completeSetup, subscribeUser } = require('../database/userQueries');
+const { getPreferencesByDiscordId, insertPreferences, updatePreferences } = require('../database/preferenceQueries');
 module.exports = { 
     name: Events.InteractionCreate, 
     async execute(interaction) { 
@@ -31,29 +31,37 @@ module.exports = {
             return;
         }
         else if (interaction.isModalSubmit()) {
-            if (interaction.customId === 'preferences') {
-                // long term data storage will be added later 
+            if (interaction.customId === 'createPreferences' || interaction.customId === 'updatePreferences') {
+                const discordId = interaction.user.id;
                 const zipcode = interaction.fields.getTextInputValue('zipcodeInput'); 
                 const location = interaction.fields.getTextInputValue('locationNameInput');
                 const speciesValues = interaction.fields.getStringSelectValues('species');
                 const species = speciesValues[0];
-                // update user data 
-                users[interaction.user.id] = { 
-                    subscribed: true, 
-                    setupComplete: true,
-                    preferences: {
-                        zipcode : zipcode,
-                        locationName: location,
-                        species: species,
-                        sendTime: null
-                    },
-                };
-                console.log(zipcode, location, species); 
 
+                if (interaction.customId === 'createPreferences') { 
+                    await insertPreferences(discordId, zipcode, location, species);
+                    await completeSetup(discordId);
+                    await subscribeUser(discordId);
+                } else if (interaction.customId === 'updatePreferences') {
+                    await updatePreferences(discordId, zipcode, location, species);    
+                }
+
+                console.log(discordId, zipcode, location, species); 
+                const preferences = await getPreferencesByDiscordId(discordId);
+                const user = await getUserByDiscordId(discordId);
                 await interaction.reply({
-                    content: `Your zipcode: ${zipcode}, location name: ${location}, as well as species: ${species} have been successfully added.`,
-                    flags: MessageFlags.Ephemeral,
-                });
+                    content:
+                        `🎣 **Your Preferences**
+
+                        • Subscribed: ${user.isSubscribed ? 'Yes' : 'No'}
+                        • Zipcode: ${preferences.zipcode}
+                        • Location: ${preferences.location}
+                        • Species: ${preferences.species}
+                        • Time: ${preferences.sendTime}
+                        • Timezone: ${preferences.timeZone}
+                        `,
+                            flags: MessageFlags.Ephemeral,
+                        });  
             }
             return;
         }

@@ -31,5 +31,5 @@ async function getPreferencesByDiscordId(discordId) {
 module.exports = { 
     insertPreferences, 
     updatePreferences, 
-    getPreferencesByUserId
+    getPreferencesByDiscordId
 };

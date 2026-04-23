@@ -23,7 +23,7 @@ module.exports = {
             }
             if (!user.isSubscribed) { 
                 await interaction.reply({ 
-                    content: "You are not currently subscribed used /subscribe first, so that these changes work.",
+                    content: "You are not currently subscribed. Use /subscribe first, so that these changes work.",
                     flags: MessageFlags.Ephemeral
                 });
                 return;

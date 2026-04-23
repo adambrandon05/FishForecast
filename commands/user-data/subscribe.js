@@ -17,6 +17,7 @@ module.exports = {
         // new user, create them and prompt preferences modal
         if(!user) { 
             await createUser(discordId);
+            console.log(`Created new user with Discord ID: ${discordId}`);
             // continue to modal creation
         }
         // already subscribed 
@@ -39,7 +40,7 @@ module.exports = {
         // modal creation 
 
         const modal = new ModalBuilder()
-            .setCustomId('preferences')
+            .setCustomId('createPreferences')
             .setTitle('Set Your Preferences');
 
         const text = new TextDisplayBuilder()
