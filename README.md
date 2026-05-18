@@ -33,12 +33,13 @@ The goal is to build this in stages while learning core concepts like APIs, sche
 ### Completed
 - Discord bot setup
 - GitHub repository and version control
+- Command system for user input
+- Store user preferences
 
 ### In Progress
-- Command system for user input
+- Working on hosting as well as managing user data on the admin level
 
 ### Next Steps
-- Store user preferences
 - Implement scheduled daily messages
 - Support multiple users
 
