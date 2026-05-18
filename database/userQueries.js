@@ -34,9 +34,9 @@ async function subscribeUser(discordId) {
         WHERE discordId = ?`,
         [discordId]);
     return { 
-        found: result.affectedRows > 0, // Check if any rows were updated (found the user)
-        changed: result.changedRows > 0 // Check if any rows were were changed (subscribed)
-    }; 
+        found: result.affectedRows > 0, 
+        changed: result.changedRows > 0 
+    };
 }
 
 async function completeSetup(discordId) { 
@@ -46,8 +46,29 @@ async function completeSetup(discordId) {
         [discordId]
     );
     return { 
-        found: result.affectedRows > 0, // Check if any rows were updated (found the user)
-        changed: result.changedRows > 0 // Check if any rows were were changed (setup completed)
+        found: result.affectedRows > 0, 
+        changed: result.changedRows > 0 
+    };
+}
+
+async function deleteUserByDiscordId(discordId) { 
+    const [result] = await pool.query(
+        `DELETE FROM users
+        WHERE discordId = ?`, 
+        [discordId]
+    );
+    return { 
+        found: result.affectedRows > 0
+    }; 
+}
+
+async function deleteAllUsers() {
+    const [result] = await pool.query(
+        `DELETE FROM users`
+    );
+    return { 
+        found: result.affectedRows > 0,
+        changed: result.affectedRows
     };
 }
 
@@ -56,5 +77,7 @@ module.exports = {
     createUser, 
     unSubscribeUser, 
     subscribeUser, 
-    completeSetup
+    completeSetup, 
+    deleteUserByDiscordId,
+    deleteAllUsers
 };
