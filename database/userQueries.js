@@ -72,6 +72,14 @@ async function deleteAllUsers() {
     };
 }
 
+async function getSubscribedUsers() { 
+    const [rows] = await pool.query(`
+        SELECT * FROM users
+        WHERE isSubscribed = TRUE
+    `);
+    return rows; 
+}
+
 module.exports = { 
     getUserByDiscordId, 
     createUser, 
@@ -79,5 +87,6 @@ module.exports = {
     subscribeUser, 
     completeSetup, 
     deleteUserByDiscordId,
-    deleteAllUsers
+    deleteAllUsers, 
+    getSubscribedUsers
 };
