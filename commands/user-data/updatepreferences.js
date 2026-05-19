@@ -60,9 +60,16 @@ module.exports = {
                 .setCustomId('locationNameInput')
                 .setStyle(TextInputStyle.Short)
                 .setPlaceholder(` Ex. Happy Hooker's Fishing Pond`)
-                // set default if user does not have a name for their fishing hole
                 .setValue(preferences.location) // prefill in the users current location name`)
                 .setMaxLength(100);
+
+            const sendTimeInput = new TextInputBuilder()
+                .setCustomId('sendTimeInput')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('HH:MM (24-hour format) Ex. 08:00 for 8 AM')
+                .setValue(preferences.sendTime.slice(0, -3)) // prefill in the users current send time, removing the seconds
+                .setMaxLength(5)
+                .setMinLength(5);
 
             const zipcodeLabel= new LabelBuilder() 
                 .setLabel('Enter the zipcode of your fishing hole')
@@ -106,11 +113,17 @@ module.exports = {
                     .setLabel("Please select your most fished fish species")
                     .setStringSelectMenuComponent(speciesInput);
 
+                const sendTimeLabel = new LabelBuilder() 
+                    .setLabel('What time do you want to receive your report?')
+                    .setDescription('Please use 24-hour format. Ex. 08:00 for 8 AM')
+                    .setTextInputComponent(sendTimeInput);
+
                 modal 
                     .addTextDisplayComponents(text)
                     .addLabelComponents(zipcodeLabel)
                     .addLabelComponents(locationNameLabel)
-                    .addLabelComponents(speciesLabel);
+                    .addLabelComponents(speciesLabel)
+                    .addLabelComponents(sendTimeLabel);
 
                 await interaction.showModal(modal);
             },

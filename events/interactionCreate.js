@@ -38,15 +38,28 @@ module.exports = {
                 const speciesValues = interaction.fields.getStringSelectValues('species');
                 const species = speciesValues[0];
 
+                const tempTime = interaction.fields.getTextInputValue('sendTimeInput');
+                const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+                if (!timeRegex.test(tempTime)) {
+                    await interaction.reply({
+                        content: 'Invalid time format. Please use HH:MM, like 07:30 or 18:45.',
+                        flags: MessageFlags.Ephemeral
+                    });
+                    return;
+                }
+
+                const sendTime = `${tempTime}:00`; 
+
                 if (interaction.customId === 'createPreferences') { 
-                    await insertPreferences(discordId, zipcode, location, species);
+                    await insertPreferences(discordId, zipcode, location, species, sendTime);
                     await completeSetup(discordId);
                     await subscribeUser(discordId);
                 } else if (interaction.customId === 'updatePreferences') {
-                    await updatePreferences(discordId, zipcode, location, species);    
+                    await updatePreferences(discordId, zipcode, location, species, sendTime);    
                 }
 
-                console.log(discordId, zipcode, location, species); 
+                console.log(discordId, zipcode, location, species, sendTime); 
                 const preferences = await getPreferencesByDiscordId(discordId);
                 const user = await getUserByDiscordId(discordId);
                 await interaction.reply({

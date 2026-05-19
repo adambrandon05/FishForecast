@@ -6,6 +6,7 @@ module.exports = {
     once: true, 
     execute(client) { 
         console.log(`Ready! Logged in as ${client.user.tag}`); 
-        sendDailyMessages(client);
+        // only useful for testing, at the moment
+        // sendDailyMessages(client);
     },
 };

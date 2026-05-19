@@ -1,20 +1,21 @@
 const pool = require('./db'); 
 
-async function insertPreferences(discordId, zipcode, location, species) {
+// timezone is still hardcoded will get changed onces I implement that weather api and algorithm
+async function insertPreferences(discordId, zipcode, location, species, sendTime) {
     const [result] = await pool.query(
         `INSERT INTO preferences ( userId, zipcode, location, species, sendTime, timeZone)
         VALUES ((SELECT id FROM users WHERE discordId = ?),
-        ?, ?, ?, '08:00:00', 'CST')`, 
-        [discordId , zipcode, location, species]
+        ?, ?, ?, ?, 'CST')`, 
+        [discordId , zipcode, location, species, sendTime]
     );
     return result.insertId;
 }
 
-async function updatePreferences(discordId, zipcode, location, species) { 
+async function updatePreferences(discordId, zipcode, location, species, sendTime) { 
     const [result] = await pool.query(
-        `UPDATE preferences SET zipcode = ?, location = ?, species = ?, sendTime = '08:00:00', timeZone = 'CST'
+        `UPDATE preferences SET zipcode = ?, location = ?, species = ?, sendTime = ?, timeZone = 'CST'
         WHERE userId = (SELECT id FROM users WHERE discordId = ?)`, 
-        [zipcode, location, species, discordId]
+        [zipcode, location, species, sendTime, discordId]
     );
     return result.affectedRows > 0; // Check if any rows were updated (successfully updated preferences)
 }

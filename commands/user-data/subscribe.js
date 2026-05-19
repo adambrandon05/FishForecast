@@ -62,18 +62,13 @@ module.exports = {
             // set default if user does not have a name for their fishing hole
             .setValue(`${interaction.user.username}'s pond`)
             .setMaxLength(100);
+        const sendTimeInput = new TextInputBuilder()
+            .setCustomId('sendTimeInput')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('HH:MM (24-hour format) Ex. 08:00 for 8 AM')
+            .setMaxLength(5)
+            .setMinLength(5);
 
-        const zipcodeLabel= new LabelBuilder() 
-            .setLabel('What is the zipcode of your fishing hole?')
-            .setDescription('This will be used to determine the weather and fishing conditions in your area.')
-            .setTextInputComponent(zipcodeInput);
-
-        const locationNameLabel = new LabelBuilder() 
-            .setLabel('What do you want to name your fishing hole?')
-            .setDescription(`If you do not have a name for your fishing hole, it will default to your username's pond.`)
-            .setTextInputComponent(locationNameInput);
-
-            // possible change to make it noted to pick your most fished species
         const speciesInput = new StringSelectMenuBuilder() 
             .setCustomId('species')
             .setPlaceholder(`Only select one. Pick the one you fish for the most.`)
@@ -101,6 +96,21 @@ module.exports = {
                     .setValue('Catfish'),
             );
 
+            const zipcodeLabel= new LabelBuilder() 
+                .setLabel('What is the zipcode of your fishing hole?')
+                .setDescription('This will be used to determine the weather and fishing conditions in your area.')
+                .setTextInputComponent(zipcodeInput);            
+
+            const locationNameLabel = new LabelBuilder() 
+                .setLabel('What do you want to name your fishing hole?')
+                .setDescription(`If you do not have a name for your fishing hole, it will default to your username's pond.`)
+                .setTextInputComponent(locationNameInput);
+
+            const sendTimeLabel = new LabelBuilder() 
+                .setLabel('What time do you want to receive your report?')
+                .setDescription('Please use 24-hour format. Ex. 08:00 for 8 AM')
+                .setTextInputComponent(sendTimeInput);
+
             const speciesLabel = new LabelBuilder() 
                 .setLabel("What fish species do you fish for the most")
                 .setStringSelectMenuComponent(speciesInput);
@@ -109,6 +119,7 @@ module.exports = {
                 .addTextDisplayComponents(text)
                 .addLabelComponents(zipcodeLabel)
                 .addLabelComponents(locationNameLabel)
+                .addLabelComponents(sendTimeLabel)
                 .addLabelComponents(speciesLabel);
 
             await interaction.showModal(modal);
